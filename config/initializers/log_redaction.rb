@@ -45,6 +45,53 @@ module LogRedaction
       @base = base_formatter
     end
 
+    # Add support for ActiveSupport::TaggedLogging which expects formatters
+    # to respond to `tagged(*tags) { ... }`. Delegate to the base formatter
+    # when it supports tagged, otherwise just yield.
+    def tagged(*tags)
+      if @base.respond_to?(:tagged)
+        @base.tagged(*tags) { yield self }
+      else
+        yield self
+      end
+    end
+
+    # Support ActiveSupport::TaggedLogging push/pop/clear tag operations.
+    # Delegate to base formatter when available, otherwise maintain a simple
+    # thread-local tag stack so tagging works even without base support.
+    def push_tags(*tags)
+      if @base.respond_to?(:push_tags)
+        @base.push_tags(*tags)
+      else
+        Thread.current[thread_key] ||= []
+        Thread.current[thread_key].concat(tags)
+      end
+    end
+
+    def pop_tags(n = 1)
+      if @base.respond_to?(:pop_tags)
+        @base.pop_tags(n)
+      else
+        arr = Thread.current[thread_key] ||= []
+        n.times { arr.pop } if n.to_i > 0
+        arr
+      end
+    end
+
+    def clear_tags!
+      if @base.respond_to?(:clear_tags!)
+        @base.clear_tags!
+      else
+        Thread.current[thread_key] = []
+      end
+    end
+
+    # Expose thread_key so formatters that rely on a specific key can still work.
+    def thread_key
+      return @base.thread_key if @base.respond_to?(:thread_key)
+      :"activesupport_tagged_logging_tags"
+    end
+
     def call(severity, timestamp, progname, msg)
       message = (msg.respond_to?(:to_s) ? msg.to_s : msg.inspect) rescue msg.to_s
       redacted = LogRedaction.redact(message)
