@@ -4,7 +4,9 @@ module LogRedaction
 
   SENSITIVE_KEYS = %w[
     patient_id
+    patientId
     patient_name
+    patientName
     name
     ssn
     dob

@@ -8,4 +8,6 @@ Rails.application.routes.draw do
     post 'api_keys', to: 'users#create_api_key'
     delete 'api_keys/:key_id', to: 'users#revoke_api_key'
   end
+
+  resources :encounters, only: [:create]
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_02_20_091500) do
+ActiveRecord::Schema[7.0].define(version: 2026_02_20_123000) do
   create_table "api_keys", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "token_digest", null: false
@@ -22,13 +22,14 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_20_091500) do
     t.index ["user_id"], name: "index_api_keys_on_user_id"
   end
 
-  create_table "encounters", primary_key: "encounter_id", id: :string, force: :cascade do |t|
+  create_table "encounters", force: :cascade do |t|
+    t.string "encounter_id", null: false
     t.string "patient_id", null: false
     t.string "provider_id", null: false
     t.datetime "encounter_date", precision: nil, null: false
     t.string "encounter_type", null: false
     t.json "clinical_data", default: {}
-    t.string "created_by", null: false
+    t.json "metadata", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["provider_id"], name: "index_encounters_on_provider_id"
