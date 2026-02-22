@@ -22,10 +22,8 @@ RSpec.describe "Encounters API", type: :request do
     it "creates an encounter and returns id" do
       post "/encounters", params: base_payload.to_json, headers: headers
       expect(response).to have_http_status(:created)
-
       json = JSON.parse(response.body)
       expect(json["id"]).to be_present
-
       created = Encounter.find(json["id"])
       expect(created.encounter_id).to eq("enc-001")
       expect(created.patient_id).to eq("patient-12345")
@@ -34,10 +32,9 @@ RSpec.describe "Encounters API", type: :request do
     it "returns validation errors for missing required fields" do
       payload = base_payload.except("encounterId")
       post "/encounters", params: payload.to_json, headers: headers
-
       expect(response).to have_http_status(:unprocessable_entity)
-
       json = JSON.parse(response.body)
+      expect(json["errors"]).to be_an(Array)
       expect(json["errors"].join).to match(/encounterId/i)
     end
   end
@@ -58,7 +55,6 @@ RSpec.describe "Encounters API", type: :request do
     it "returns the encounter when filters match" do
       get "/encounters/#{encounter.id}", params: { patientId: "patient-xyz" }, headers: headers
       expect(response).to have_http_status(:ok)
-
       json = JSON.parse(response.body)
       expect(json["encounterId"]).to eq("enc-lookup-1")
       expect(json["patientId"]).to eq("patient-xyz")
@@ -72,7 +68,6 @@ RSpec.describe "Encounters API", type: :request do
     it "can find by encounterId and apply filters" do
       get "/encounters/#{encounter.encounter_id}", params: { providerId: "prov-55" }, headers: headers
       expect(response).to have_http_status(:ok)
-
       json = JSON.parse(response.body)
       expect(json["encounterId"]).to eq("enc-lookup-1")
     end
