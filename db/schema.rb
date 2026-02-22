@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_02_20_123000) do
+ActiveRecord::Schema[7.0].define(version: 2026_02_20_130000) do
   create_table "api_keys", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "token_digest", null: false
@@ -20,6 +20,14 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_20_123000) do
     t.datetime "updated_at", null: false
     t.index ["token_digest"], name: "index_api_keys_on_token_digest"
     t.index ["user_id"], name: "index_api_keys_on_user_id"
+  end
+
+  create_table "audit_accesses", force: :cascade do |t|
+    t.integer "encounter_id", null: false
+    t.integer "accessed_by_user_id", null: false
+    t.datetime "accessed_at", precision: nil, null: false
+    t.index ["accessed_at"], name: "index_audit_accesses_on_accessed_at"
+    t.index ["encounter_id"], name: "index_audit_accesses_on_encounter_id"
   end
 
   create_table "encounters", force: :cascade do |t|
@@ -43,4 +51,5 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_20_123000) do
   end
 
   add_foreign_key "api_keys", "users"
+  add_foreign_key "audit_accesses", "encounters"
 end
