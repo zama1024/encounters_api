@@ -20,7 +20,7 @@ class PaginationService
   private
 
   def parse_page
-    p = @params[@page_key]
+    p = @params[@page_key] || @params[@page_key.to_sym]
     return 1 if p.nil? || p.to_s.strip == ''
 
     unless p.to_s =~ /\A\d+\z/
@@ -38,7 +38,7 @@ class PaginationService
   end
 
   def parse_per_page
-    pp = @params[@per_page_key]
+    pp = @params[@per_page_key] || @params[@per_page_key.to_sym]
     return DEFAULT_PER_PAGE if pp.nil? || pp.to_s.strip == ''
 
     unless pp.to_s =~ /\A\d+\z/

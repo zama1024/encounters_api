@@ -57,7 +57,7 @@ module Audit
     private
 
     def present?(key)
-      v = @params[key]
+      v = @params[key] || @params[key.to_sym]
       !(v.nil? || (v.respond_to?(:empty?) && v.empty?))
     end
 
